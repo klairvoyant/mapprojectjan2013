@@ -1,22 +1,31 @@
 /**
-* Created at www.klairvoyant.in
+* Created at www.klairvoyant.in jjjjjjjjjjjjjjjj
 * User: john
 * Date: 8/28/12
 * Time: 11:13 AM
 *
 */
 
-
+var varDis;
 var fileType;  // is the file extention (i.e. tcx)
 var unitId;   //from <unitId>
 var Id; // from <Id>
+var tempActivity;
 var Activity; //from <Activity Sport="Biking"> (in this case the variable value will be Biking)
 var startLat; // from the first <LatitudeDegrees> field
 var startLng;// from the first <LongitudeDegrees> field
 var endLat; //from the last <LatitudeDegrees> field in the entire file
 var endLng; //from the last < LongitudeDegrees > field in the entire file
-
+var len,len2;
 var lapNumber;// from the number of <Lap codes in the file
+
+
+/*
+
+
+
+
+
 var lapStartTime;
 var lapStartDate;// split out from <Lap StartTime="2012-09-25T00:32:50Z"> - two strings
 var lapDuration;// from <TotalTimeSeconds> in seconds
@@ -38,19 +47,19 @@ var aveSpeed;// is totalDistance / totalDuration / 3600 (km/h)
 var totalCalories;// is the sum of the lapCalories values
 var maxHR;// is the highest lapMaxHR value
 var aveHR;// is the average of all values in HRdataStr (below) (ignore zeros in average)
-var maxCadence; is the highest lapMaxCadance value
-var aveCadence; is the average of all values in cadencedataStr (below) (include zeros in average)
+var maxCadence; *//*is the highest lapMaxCadance value*//*
+var aveCadence; *//*is the average of all values in cadencedataStr (below) (include zeros in average)*//*
 var maxPower;// is the highest lapMaxPower value
 var avePower;// is the average of all values in powerdataStr (below) (include zeros in average)
-var elevdataStr;// is the x,y,z from each of the lapDetails arrays (format as a string of x,y,z x,y,z x,y,z)
+//var elevdataStr;// is the x,y,z from each of the lapDetails arrays (format as a string of x,y,z x,y,z x,y,z)
 var HRdataStr;// – a string built up from the HeartRateBpm values, such as "120,125,130,140,150,155,160,185,0,0,185,185,190,175,170,165,130,120" built up from the HR tags (item 22g above) within all the lapDetails arrays (note the 0 means no data was collected for that point)
-var cadencedataStr;// – a string built up from the Cadence tags (item 22f above), comma separated built up from the data within all the lapDetails arrays
-var powerdataStr;// – built up from the Watts tag (item 22h above), comma separated built up from the data within all the lapDetails arrays
+//var cadencedataStr;// – a string built up from the Cadence tags (item 22f above), comma separated built up from the data within all the lapDetails arrays
+//var powerdataStr;// – built up from the Watts tag (item 22h above), comma separated built up from the data within all the lapDetails arrays
 
 
 
 var inputs, n, m,temp,lapHR=[];
-var lapCadence;
+var lapCadence;*/
 
 var content=new String("");
 var dataFile=['walk_courses.tcx','activity-goals-fr405.TCX'];  // for checking already uploaded  files. it should be in database temporarily stored in a array
@@ -234,6 +243,170 @@ function decode64(input) {
 
 }
 
+
+
+
+
+function getValues(){
+    alert("afer 5 seconds");
+
+    fileType="tcx";
+//    varDis=" 1) File Type= "+fileType;
+    unitId=xmlDoc.getElementsByTagName("UnitId")[0].childNodes[0].nodeValue;
+//    varDis+= " 2) Unit ID= "+ unitId;
+    Id=xmlDoc.getElementsByTagName("Id")[0].childNodes[0].nodeValue;
+//    varDis+= " 3) ID= "+ Id;
+    tempActivity=xmlDoc.getElementsByTagName("Activity");
+    Activity=tempActivity[0].getAttribute("Sport");
+//    varDis+= " 4) Activity= "+ Activity;
+    startLat=xmlDoc.getElementsByTagName("LatitudeDegrees")[0].childNodes[0].nodeValue;
+//    varDis+= " 5) Starting Latitude= "+ startLat;
+    startLng=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;
+//    varDis+= " 6) Starting Longitude= "+ startLng;
+    endLat=xmlDoc.getElementsByTagName("LatitudeDegrees")[len-1].childNodes[0].nodeValue;
+    endLng=xmlDoc.getElementsByTagName("LongitudeDegrees")[len-1].childNodes[0].nodeValue;
+   // varDis+= " 9) No of Laps= "+ lapNumber;
+
+    //     ------------------------  passed ----------------------------
+
+    for(var i=0; i<lapNumber.length; i++) {
+
+    }
+
+
+
+    $('forDisplayVariables').innerHTML=varDis;
+
+
+
+
+    /*
+
+
+
+
+
+
+
+     for(var i=0; i<inputs.length; i++) {
+     lapStartTime[i]= inputs[i].childNodes[0].Attributes["StartTime"].value;
+     //lapStartDate=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
+     lapDuration[i]=inputs[i].getElementsByTagName("TotalTimeSeconds")[0].childNodes[0].nodeValue;
+     lapDistance[i]=inputs[i].getElementsByTagName("DistanceMeters")[0].childNodes[0].nodeValue;
+     lapDistance[i]=(lapDistance[i]/1000);
+     lapMaxSpeed[i]=inputs[i].getElementsByTagName("MaximumSpeed")[0].childNodes[0].nodeValue;
+     lapMaxSpeed[i]=lapMaxSpeed[i]*3.6;
+     lapCalories[i]=inputs[i].getElementsByTagName("Calories")[0].childNodes[0].nodeValue;
+     n=inputs[i].getElementsByTagName("AverageHeartRateBpm");
+     lapAveHR[i]=n.getElementsByTagName("Value")[0].childNodes[0].nodeValue;
+     m=inputs[i].getElementsByTagName("MaximumHeartRateBpm");
+     lapMaxHR[i]=m.getElementsByTagName("Value")[0].childNodes[0].nodeValue;
+     lapCadence[i]=inputs[i].getElementsByTagName("Cadence")[0].childNodes[0].nodeValue;
+     lapMaxCadence[i]=inputs[i].getElementsByTagName("MaxBikeCadence")[0].childNodes[0].nodeValue;
+     lapAvePower[i]=inputs[i].getElementsByTagName("AvgWatts")[0].childNodes[0].nodeValue;
+     lapMaxPower[i]=inputs[i].getElementsByTagName("MaxWatts")[0].childNodes[0].nodeValue;
+     n=inputs[i].getElementsByTagName("Track");
+     lapDetails[i][x]=n.getElementsByTagName("LongitudeDegrees");
+     lapDetails[i][y]=n.getElementsByTagName("LatitudeDegrees");
+     lapDetails[i][z]=n.getElementsByTagName("AltitudeMeters");
+
+     lapDetails[i][time]=n.getElementsByTagName("Time");
+     lapDetails[i][duration][0]=0;
+     for(var i2=1; i2<lapDetails[i][time].length; i2++) {
+
+     lapDetails[i][duration][i2]=(lapDetails[i][time][i2] - lapDetails[i][time][0]);
+
+     }
+     lapDetails[i][distance]=n.getElementsByTagName("DistanceMeters");
+     lapDetails[i][cadence]=n.getElementsByTagName("Cadence");
+     lapDetails[i][HR]=n.getElementsByTagName("HeartRateBpm");
+     lapDetails[i][Power]=n.getElementsByTagName("ns3:Watts");
+
+     maxHR[i]=lapMaxHR[i][0];
+
+     for(var j=0; j<lapMaxHR[i].length; j++)
+     {
+
+     if(lapMaxHR[i][j]>maxHR[i])
+     {
+     maxHR[i]=lapMaxHR[i][j];
+     }
+     }
+
+     maxSpeed[i]=lapMaxSpeed[i][0];
+
+     for(var j=0; j<lapMaxSpeed[i].length; j++)
+     {
+     if(lapMaxSpeed[i][j]>maxSpeed[i])
+     {
+     maxSpeed[i]=lapMaxSpeed[i][j];
+     }
+
+     }
+
+     maxCadence[i]=lapCadence[i][0];
+
+     for(var j=0; j<lapCadence[i].length; j++)
+     {
+     if(lapCadence[i][j]>maxCadence[i])
+     {
+     maxCadence[i]=lapCadence[i][j];
+     }
+     lapAveCadence[i]+=lapCadence[i][j];
+
+     }
+
+     lapAveCadence[i]=lapAveCadence[i]/lapCadence[i].length;
+
+
+     }// lap loop
+
+     for(var i=0; i<lapNumber; i++)
+     {
+
+     totalDuration+=lapDuration[i];
+     totalCalories+=lapCalories[i];
+
+     }
+
+
+
+     totalDistance=lapDetails[lapNumber][distance][(lapDetails[lapNumber][distance]).length];
+
+     aveSpeed= totalDistance / totalDuration / 3600;
+     aveHR=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
+
+
+     aveCadence=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
+     maxPower=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
+     avePower=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
+     elevdataStr=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
+     HRdataStr=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
+     cadencedataStr=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
+     powerdataStr=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
+
+
+
+
+
+
+
+
+
+     da+=xmlDoc.getElementsByTagName("TotalTimeSeconds")[0].childNodes[0].nodeValue;
+
+     jk= xmlDoc.getElementsByTagName("BeginPosition");
+     da+=" Begin Point"
+     da+=jk[0].getElementsByTagName("LatitudeDegrees")[0].childNodes[0].nodeValue
+     da+=" - ";
+     da+=jk[0].getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue
+     document.getElementById('outputDiv').innerHTML =da*/
+
+
+}
+
+
+
 function readXML(aFile,myfileType) {
     var da;
     if (window.DOMParser)
@@ -262,134 +435,10 @@ function readXML(aFile,myfileType) {
     else if(myfileType==2)
     {
     // tcx file
-
-        fileType=tcx;
-        unitId=xmlDoc.getElementsByTagName("UnitId")[0].childNodes[0].nodeValue;
-        Id=xmlDoc.getElementsByTagName("Id")[0].childNodes[0].nodeValue;
-        Activity=xmlDoc.getElementsByTagName("Activity")[0].childNodes[0].Attributes["Sport"].value;
-        startLat=xmlDoc.getElementsByTagName("LatitudeDegrees")[0].childNodes[0].nodeValue;
-        startLng=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;
-        inputs = document.getElementsByTagName('LatitudeDegrees');
-        endLat=xmlDoc.getElementsByTagName("LatitudeDegrees")[inputs.length].childNodes[0].nodeValue;
-        inputs = document.getElementsByTagName('LongitudeDegrees');
-        endLng=xmlDoc.getElementsByTagName("LongitudeDegrees")[inputs.length].childNodes[0].nodeValue;
-
-        inputs = document.getElementsByTagName('Lap');
-        lapNumber=inputs.length
-        for(var i=0; i<inputs.length; i++) {
-             lapStartTime[i]= inputs[i].childNodes[0].Attributes["StartTime"].value;
-             //lapStartDate=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
-             lapDuration[i]=inputs[i].getElementsByTagName("TotalTimeSeconds")[0].childNodes[0].nodeValue;
-             lapDistance[i]=inputs[i].getElementsByTagName("DistanceMeters")[0].childNodes[0].nodeValue;
-             lapDistance[i]=(lapDistance[i]/1000);
-             lapMaxSpeed[i]=inputs[i].getElementsByTagName("MaximumSpeed")[0].childNodes[0].nodeValue;
-             lapMaxSpeed[i]=lapMaxSpeed[i]*3.6;
-             lapCalories[i]=inputs[i].getElementsByTagName("Calories")[0].childNodes[0].nodeValue;
-             n=inputs[i].getElementsByTagName("AverageHeartRateBpm");
-             lapAveHR[i]=n.getElementsByTagName("Value")[0].childNodes[0].nodeValue;
-             m=inputs[i].getElementsByTagName("MaximumHeartRateBpm");
-            lapMaxHR[i]=m.getElementsByTagName("Value")[0].childNodes[0].nodeValue;
-            lapCadence[i]=inputs[i].getElementsByTagName("Cadence")[0].childNodes[0].nodeValue;
-            lapMaxCadence[i]=inputs[i].getElementsByTagName("MaxBikeCadence")[0].childNodes[0].nodeValue;
-            lapAvePower[i]=inputs[i].getElementsByTagName("AvgWatts")[0].childNodes[0].nodeValue;
-            lapMaxPower[i]=inputs[i].getElementsByTagName("MaxWatts")[0].childNodes[0].nodeValue;
-            n=inputs[i].getElementsByTagName("Track");
-            lapDetails[i][x]=n.getElementsByTagName("LongitudeDegrees");
-            lapDetails[i][y]=n.getElementsByTagName("LatitudeDegrees");
-            lapDetails[i][z]=n.getElementsByTagName("AltitudeMeters");
-
-            lapDetails[i][time]=n.getElementsByTagName("Time");
-            lapDetails[i][duration][0]=0;
-            for(var i2=1; i2<lapDetails[i][time].length; i2++) {
-
-                lapDetails[i][duration][i2]=(lapDetails[i][time][i2] - lapDetails[i][time][0]);
-
-            }
-            lapDetails[i][distance]=n.getElementsByTagName("DistanceMeters");
-            lapDetails[i][cadence]=n.getElementsByTagName("Cadence");
-            lapDetails[i][HR]=n.getElementsByTagName("HeartRateBpm");
-            lapDetails[i][Power]=n.getElementsByTagName("ns3:Watts");
-
-            maxHR[i]=lapMaxHR[i][0];
-
-            for(var j=0; j<lapMaxHR[i].length; j++)
-            {
-
-                 if(lapMaxHR[i][j]>maxHR[i])
-                 {
-                 maxHR[i]=lapMaxHR[i][j];
-                 }
-            }
-
-            maxSpeed[i]=lapMaxSpeed[i][0];
-
-            for(var j=0; j<lapMaxSpeed[i].length; j++)
-            {
-                if(lapMaxSpeed[i][j]>maxSpeed[i])
-                {
-                    maxSpeed[i]=lapMaxSpeed[i][j];
-                }
-
-            }
-
-            maxCadence[i]=lapCadence[i][0];
-
-            for(var j=0; j<lapCadence[i].length; j++)
-            {
-                if(lapCadence[i][j]>maxCadence[i])
-                {
-                    maxCadence[i]=lapCadence[i][j];
-                }
-                lapAveCadence[i]+=lapCadence[i][j];
-
-            }
-
-            lapAveCadence[i]=lapAveCadence[i]/lapCadence[i].length;
-
-
-         }// lap loop
-
-        for(var i=0; i<lapNumber; i++)
-        {
-
-          totalDuration+=lapDuration[i];
-          totalCalories+=lapCalories[i];
-
-        }
-
-
-
-        totalDistance=lapDetails[lapNumber][distance][(lapDetails[lapNumber][distance]).length];
-
-        aveSpeed= totalDistance / totalDuration / 3600;
-        aveHR=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
-
-
-        aveCadence=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
-        maxPower=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
-        avePower=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
-        elevdataStr=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
-        HRdataStr=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
-        cadencedataStr=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
-        powerdataStr=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
-
-
-
-
-
-
-
-
-
-        da+=xmlDoc.getElementsByTagName("TotalTimeSeconds")[0].childNodes[0].nodeValue;
-
-        jk= xmlDoc.getElementsByTagName("BeginPosition");
-        da+=" Begin Point"
-        da+=jk[0].getElementsByTagName("LatitudeDegrees")[0].childNodes[0].nodeValue
-        da+=" - ";
-        da+=jk[0].getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue
-        document.getElementById('outputDiv').innerHTML =da
-
+        len2  = xmlDoc.getElementsByTagName("LatitudeDegrees");
+        len=len2.length
+        lapNumber = xmlDoc.getElementsByTagName('Lap').length;
+        setTimeout(getValues, 8000);
     }
 
 }
