@@ -6,7 +6,7 @@
 *
 */
 
-var varDis;
+//var varDis;
 var fileType;  // is the file extention (i.e. tcx)
 var unitId;   //from <unitId>
 var Id; // from <Id>
@@ -18,7 +18,33 @@ var endLat; //from the last <LatitudeDegrees> field in the entire file
 var endLng; //from the last < LongitudeDegrees > field in the entire file
 var len,len2;
 var lapNumber;// from the number of <Lap codes in the file
-
+var lapNode;
+var dateTimeString;
+//var dateTimeStringArray=[];
+//
+//var lapStartTime=[];
+var lapStartDate=[];// split out from <Lap StartTime="2012-09-25T00:32:50Z"> - two strings
+var lapDuration=[];// from <TotalTimeSeconds> in seconds
+var lapDistance=[];// from <DistanceMetres> /1000 to make km
+var lapMaxSpeed=[];// from <MaximumSpeed> *3.6 to make km/hr
+var lapCalories=[];// from <Calories>
+var lapAveHR=[]; //from <AverageHeartRateBpm>
+var lapMaxHR=[];// from <MaximumHeartRateBpm>
+var lapAveCadenceTotal;
+var lapAveCadence=[];// from the average of all <Cadence> values in each lap (i.e. average of all values in item 22f, below, including zeros)
+var lapMaxCadence=[];// from <MaxBikeCadence>
+var lapAvePower=[];// from <ns3:AvgWatts>128</ns3:AvgWatts> in the <Extensions> at the end of each <Lap
+var lapMaxPower=[];// from <ns3:MaxWatts>128</ns3:MaxWatts> in the <Extensions> at the end of each <Lap
+var lapDetails=[];// are taken from the data within the <Track> marks and is stored (as a multidimensional array) in the format (x, y, z, duration, distance, cadence, HR, power) with the following meanings:
+var lapStartTime,trackTime,timeDistance;
+var totalDistance=0;// is the last ‘distance’ value in the last lap, or the sum of the lapDistance values (kilometres)
+var totalDuration=0;// is the sum of the lapDuration values (seconds)
+var maxSpeed=0;// is the highest lapMaxSpeed value (km/h)
+var aveSpeed;// is totalDistance / totalDuration / 3600 (km/h)
+var totalCalories=0;// is the sum of the lapCalories values
+var maxHR=0;// is the highest lapMaxHR value
+var aveHR=0;// is the average of all values in HRdataStr (below) (ignore zeros in average)//todo
+var maxCadence=0; *//*is the highest lapMaxCadance value*//*
 
 /*
 
@@ -26,28 +52,7 @@ var lapNumber;// from the number of <Lap codes in the file
 
 
 
-var lapStartTime;
-var lapStartDate;// split out from <Lap StartTime="2012-09-25T00:32:50Z"> - two strings
-var lapDuration;// from <TotalTimeSeconds> in seconds
-var lapDistance;// from <DistanceMetres> /1000 to make km
-var lapMaxSpeed;// from <MaximumSpeed> *3.6 to make km/hr
-var lapCalories;// from <Calories>
-var lapAveHR; //from <AverageHeartRateBpm>
-var lapMaxHR;// from <MaximumHeartRateBpm>
-var lapAveCadence;// from the average of all <Cadence> values in each lap (i.e. average of all values in item 22f, below, including zeros)
-var lapMaxCadence;// from <MaxBikeCadence>
-var lapAvePower;// from <ns3:AvgWatts>128</ns3:AvgWatts> in the <Extensions> at the end of each <Lap
-var lapMaxPower;// from <ns3:MaxWatts>128</ns3:MaxWatts> in the <Extensions> at the end of each <Lap
 
-var lapDetails;// are taken from the data within the <Track> marks and is stored (as a multidimensional array) in the format (x, y, z, duration, distance, cadence, HR, power) with the following meanings:
-var totalDistance;// is the last ‘distance’ value in the last lap, or the sum of the lapDistance values (kilometres)
-var totalDuration;// is the sum of the lapDuration values (seconds)
-var maxSpeed;// is the highest lapMaxSpeed value (km/h)
-var aveSpeed;// is totalDistance / totalDuration / 3600 (km/h)
-var totalCalories;// is the sum of the lapCalories values
-var maxHR;// is the highest lapMaxHR value
-var aveHR;// is the average of all values in HRdataStr (below) (ignore zeros in average)
-var maxCadence; *//*is the highest lapMaxCadance value*//*
 var aveCadence; *//*is the average of all values in cadencedataStr (below) (include zeros in average)*//*
 var maxPower;// is the highest lapMaxPower value
 var avePower;// is the average of all values in powerdataStr (below) (include zeros in average)
@@ -251,31 +256,99 @@ function getValues(){
     alert("afer 5 seconds");
 
     fileType="tcx";
-//    varDis=" 1) File Type= "+fileType;
     unitId=xmlDoc.getElementsByTagName("UnitId")[0].childNodes[0].nodeValue;
-//    varDis+= " 2) Unit ID= "+ unitId;
     Id=xmlDoc.getElementsByTagName("Id")[0].childNodes[0].nodeValue;
-//    varDis+= " 3) ID= "+ Id;
     tempActivity=xmlDoc.getElementsByTagName("Activity");
     Activity=tempActivity[0].getAttribute("Sport");
-//    varDis+= " 4) Activity= "+ Activity;
     startLat=xmlDoc.getElementsByTagName("LatitudeDegrees")[0].childNodes[0].nodeValue;
-//    varDis+= " 5) Starting Latitude= "+ startLat;
     startLng=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;
-//    varDis+= " 6) Starting Longitude= "+ startLng;
     endLat=xmlDoc.getElementsByTagName("LatitudeDegrees")[len-1].childNodes[0].nodeValue;
     endLng=xmlDoc.getElementsByTagName("LongitudeDegrees")[len-1].childNodes[0].nodeValue;
-   // varDis+= " 9) No of Laps= "+ lapNumber;
+    for(var i=0; i<lapNumber; i++) {
+        lapAveCadenceTotal=0;
+        dateTimeString=lapNode[i].getAttribute("StartTime");
+        lapStartTime=new Date(dateTimeString);
+        lapStartTime[i]=lapStartTime.toTimeString();
+        lapStartDate[i]=lapStartTime.toDateString();
+        lapDuration[i]=lapNode[i].getElementsByTagName("TotalTimeSeconds")[0].childNodes[0].nodeValue;
+        totalDuration+=parseInt(lapDuration[i]);  // to get total distance
+        lapDistance[i]=lapNode[i].getElementsByTagName("DistanceMeters")[0].childNodes[0].nodeValue;
+        lapDistance[i]=lapDistance[i]/1000;
+        totalDistance+=parseInt(lapDistance[i]);  // to get total distance
 
-    //     ------------------------  passed ----------------------------
+        lapMaxSpeed[i]=lapNode[i].getElementsByTagName("MaximumSpeed")[0].childNodes[0].nodeValue;
+        lapMaxSpeed[i]=(lapMaxSpeed[i])*3.6;
+        if(lapMaxSpeed[i]> maxSpeed)
+        {
+            maxSpeed=lapMaxSpeed[i];// to get highest speed
+        }
+        lapCalories[i]=lapNode[i].getElementsByTagName("Calories")[0].childNodes[0].nodeValue;
+        totalCalories+=parseInt(lapCalories[i]);
 
-    for(var i=0; i<lapNumber.length; i++) {
+        n=lapNode[i].getElementsByTagName("AverageHeartRateBpm")[0];
+        lapAveHR[i] = n.firstElementChild.childNodes[0].nodeValue;
 
-    }
+        m=lapNode[i].getElementsByTagName("MaximumHeartRateBpm")[0];
+        lapMaxHR[i]=m.firstElementChild.childNodes[0].nodeValue;
+        if(lapMaxHR[i]>maxHR)
+        {
+            maxHR=lapMaxHR[i];
+        }
+        lapCadence=lapNode[i].getElementsByTagName("Cadence");
+        for(var j= 0;j<lapCadence.length;j++)
+        {
+            lapAveCadenceTotal+= parseInt((lapCadence[j].childNodes[0].nodeValue),10);
+        }
+        lapAveCadence[i]=lapAveCadenceTotal/(lapCadence.length);
+        lapMaxCadence[i]=lapNode[i].getElementsByTagName("ns3:MaxBikeCadence")[0].childNodes[0].nodeValue;
+
+        if(lapMaxCadence[i]>maxCadence)
+        {
+            maxCadence=lapMaxCadence[i];
+        }
 
 
 
-    $('forDisplayVariables').innerHTML=varDis;
+        lapAvePower[i]=lapNode[i].getElementsByTagName("ns3:AvgWatts")[0].childNodes[0].nodeValue;
+        lapMaxPower[i]=lapNode[i].getElementsByTagName("ns3:MaxWatts")[0].childNodes[0].nodeValue;
+        n=lapNode[i].getElementsByTagName("Trackpoint");
+        lapDetails[i]=new Array(n.length); // second dimension array for store number of trackpoint
+
+        for( var j=0;j< n.length;j++)
+        {
+            lapDetails[i][j]=new Array(8); // Third dimension array for storing the following details
+            lapDetails[i][j][0]=n[j].getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;
+            lapDetails[i][j][1]=n[j].getElementsByTagName("LatitudeDegrees")[0].childNodes[0].nodeValue;
+            lapDetails[i][j][2]=n[j].getElementsByTagName("AltitudeMeters")[0].childNodes[0].nodeValue;
+            trackTime=new Date(n[j].getElementsByTagName("Time")[0].childNodes[0].nodeValue);
+            timeDistance=trackTime-lapStartTime;
+            lapDetails[i][j][3]=timeDistance/1000; //to make millseconds to seconds
+            lapDetails[i][j][4]=n[j].getElementsByTagName("DistanceMeters")[0].childNodes[0].nodeValue;
+            lapDetails[i][j][5]=n[j].getElementsByTagName("Cadence")[0].childNodes[0].nodeValue;
+            p=n[j].getElementsByTagName("HeartRateBpm")[0];
+            lapDetails[i][j][6]=p.firstElementChild.childNodes[0].nodeValue;
+            lapDetails[i][j][7]=n[j].getElementsByTagName("ns3:Watts")[0].childNodes[0].nodeValue;
+         }
+
+
+
+    } // for loop end
+
+
+       //     ------------------------  passed ----------------------------
+
+    aveSpeed=totalDistance / totalDuration / 3600;
+    alert(totalDistance);
+    alert(totalDuration);
+    alert(maxSpeed);
+    alert(totalCalories);
+    alert(maxHR);
+    alert(aveHR);
+    alert(maxCadence);
+
+
+
+
 
 
 
@@ -289,38 +362,15 @@ function getValues(){
 
 
      for(var i=0; i<inputs.length; i++) {
-     lapStartTime[i]= inputs[i].childNodes[0].Attributes["StartTime"].value;
-     //lapStartDate=xmlDoc.getElementsByTagName("LongitudeDegrees")[0].childNodes[0].nodeValue;//TODO
-     lapDuration[i]=inputs[i].getElementsByTagName("TotalTimeSeconds")[0].childNodes[0].nodeValue;
-     lapDistance[i]=inputs[i].getElementsByTagName("DistanceMeters")[0].childNodes[0].nodeValue;
-     lapDistance[i]=(lapDistance[i]/1000);
-     lapMaxSpeed[i]=inputs[i].getElementsByTagName("MaximumSpeed")[0].childNodes[0].nodeValue;
-     lapMaxSpeed[i]=lapMaxSpeed[i]*3.6;
-     lapCalories[i]=inputs[i].getElementsByTagName("Calories")[0].childNodes[0].nodeValue;
-     n=inputs[i].getElementsByTagName("AverageHeartRateBpm");
-     lapAveHR[i]=n.getElementsByTagName("Value")[0].childNodes[0].nodeValue;
-     m=inputs[i].getElementsByTagName("MaximumHeartRateBpm");
-     lapMaxHR[i]=m.getElementsByTagName("Value")[0].childNodes[0].nodeValue;
-     lapCadence[i]=inputs[i].getElementsByTagName("Cadence")[0].childNodes[0].nodeValue;
-     lapMaxCadence[i]=inputs[i].getElementsByTagName("MaxBikeCadence")[0].childNodes[0].nodeValue;
-     lapAvePower[i]=inputs[i].getElementsByTagName("AvgWatts")[0].childNodes[0].nodeValue;
-     lapMaxPower[i]=inputs[i].getElementsByTagName("MaxWatts")[0].childNodes[0].nodeValue;
-     n=inputs[i].getElementsByTagName("Track");
-     lapDetails[i][x]=n.getElementsByTagName("LongitudeDegrees");
-     lapDetails[i][y]=n.getElementsByTagName("LatitudeDegrees");
-     lapDetails[i][z]=n.getElementsByTagName("AltitudeMeters");
 
-     lapDetails[i][time]=n.getElementsByTagName("Time");
-     lapDetails[i][duration][0]=0;
-     for(var i2=1; i2<lapDetails[i][time].length; i2++) {
 
-     lapDetails[i][duration][i2]=(lapDetails[i][time][i2] - lapDetails[i][time][0]);
 
-     }
-     lapDetails[i][distance]=n.getElementsByTagName("DistanceMeters");
-     lapDetails[i][cadence]=n.getElementsByTagName("Cadence");
-     lapDetails[i][HR]=n.getElementsByTagName("HeartRateBpm");
-     lapDetails[i][Power]=n.getElementsByTagName("ns3:Watts");
+
+
+
+
+
+
 
      maxHR[i]=lapMaxHR[i][0];
 
@@ -437,7 +487,8 @@ function readXML(aFile,myfileType) {
     // tcx file
         len2  = xmlDoc.getElementsByTagName("LatitudeDegrees");
         len=len2.length
-        lapNumber = xmlDoc.getElementsByTagName('Lap').length;
+        lapNode = xmlDoc.getElementsByTagName('Lap');
+        lapNumber=lapNode.length;
         setTimeout(getValues, 8000);
     }
 
